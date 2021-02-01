@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Gacha game PRD probability simulation made by Lin Xuhao"
+    />
+    <meta charset="utf-8">
+    <script>
+        window.onload = function() {
+            let displayedProba = document.getElementById('displayedProba');
+            let pulledNumber = document.getElementById('pulledNumber');
+            let pullNumber = document.getElementById('pullNumber');
+            let c = document.getElementById('c');
+            let pastProbability = document.getElementById('pastProbability');
+            let probability = document.getElementById('probability');
+            let probaNoCumuWithPrevious = document.getElementById('probaNoCumuWithPrevious');
+
+            displayedProba.onchange = handleChange;
+            pulledNumber.onchange = handleChange;
+            pullNumber.onchange = handleChange;
+        };
+
+
+        function handleChange(e) {
+            let dp_value = parseFloat(displayedProba.value) / 100;
+            let pulledn_value = parseInt(pulledNumber.value);
+            let pn_value = parseInt(pullNumber.value);
+
+            let c_value = computeC(dp_value);
+
+            let previousProba_value = computeProba(0, pulledn_value, c_value);
+            let proba_value = computeProba(0, pulledn_value + pn_value, c_value);
+            let probaNoCumuWithPrevious_value = proba_value / previousProba_value;
+
+            c.textContent = c_value * 100;
+            pastProbability.textContent = (1 - previousProba_value) * 100;
+            probability.textContent = (1 - proba_value) * 100;
+            probaNoCumuWithPrevious.textContent = (1 - probaNoCumuWithPrevious_value) * 100;
+        }
+
+        //begin and end both inclusive
+        function computeProba(begin, end, c_value){
+            let proba = 1;
+            for(let i = begin; i <= end; i++){
+                proba *= 1 - c_value * i
+            }
+            return proba;
+        }
+
+        function computeC(displayedProba_value){
+            let e = parseInt(1 / displayedProba_value);
+            let array = range(e);
+            let c = 1 / array.reduce((a, b) => a + b, 1);
+            return c;
+        }
+
+        function range(size, startAt = 0) {
+            return [...Array(size).keys()].map(i => i + startAt);
+        }
+
+	</script>
+    <title>Gacha game PRD probability simulator</title>
+  </head>   
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root">
+        <center>
+        <h1>Gacha game PRD probability simulator</h1>
+        <h2>Input</h2>
+        <ul>
+            <li>Displayed Probability: <input type="number" min="0" max="100" step=".5" value="1.5" id="displayedProba">%</li>
+            <li>How many times you have pulled: <input type="number" min="0" step="1" value="0" id="pulledNumber"></li>
+            <li>How many times you gonna pull: <input type="number" min="0" step="1" value="0" id="pullNumber"></li>
+        </ul>
+        <h2>Output</h2>
+        <ul>
+            <li>C: <span id="c"></span>%</li>
+            <li>The past probability of you drop at least one featured with your current pull number is: <span id="pastProbability"></span>%</li>
+            <li>The probability of you drop at least one featured with the number you gonna pull is: <span id="probability"></span>%</li>
+            <li>The probability of you drop at least one featured with the number you gonna pull without cumuling with your past probability is: <span id="probaNoCumuWithPrevious"></span>%</li>
+        </ul>
+        For definition of Pseudo Random Definition, see <a href="https://dota2.gamepedia.com/Random_distribution#Definition"> here </a>
+    </center>
+    </div>
+  </body>
+</html>
